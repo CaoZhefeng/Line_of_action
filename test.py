@@ -1,10 +1,7 @@
-import random
+import numpy as np
 
-exm_turn = 100000
-counter = 0
-for i in range(exm_turn):
-	x = random.uniform(-1, 1)
-	y = random.uniform(-1, 1)
-	if x ** 2 + y ** 2 < 1:
-		counter = counter + 1
-print("pi:{0}".format((4 * counter / exm_turn)))
+a = np.array([[1, 0],[2,4]])
+indices = np.where(a == 0)
+for coords in list(zip(indices[0], indices[1])):
+	print(coords[0], coords[1])
+
