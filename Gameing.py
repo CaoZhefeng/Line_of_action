@@ -11,7 +11,6 @@ class Game(object):
 	def __init__(self, board, **kwargs):
 		self.board = board
 		self.player = [1, 2]  # player1 and player2
-		self.n_in_row = int(kwargs.get('n_in_row', 5))  # 默认连成5个获胜
 		self.time = float(kwargs.get('time', 5))  # 默认每步计算时长为5s
 		self.max_actions = int(kwargs.get('max_actions', 1000))  # 默认每次模拟对局最多进行的步数为1000
 
@@ -19,7 +18,7 @@ class Game(object):
 		p1, p2 = self.init_player()  # 随机给出下子顺序
 		self.board.init_board()
 
-		ai = MCTS(self.board, [p1, p2], self.n_in_row, self.time, self.max_actions)
+		ai = MCTS(self.board, [p1, p2], self.time, self.max_actions)
 		human = Human(self.board, p2)
 		players = {}
 		players[p1] = ai
@@ -27,11 +26,11 @@ class Game(object):
 		turn = [p1, p2]
 		shuffle(turn)  # 玩家和电脑的出手顺序随机
 		while (1):
-			p = turn.pop(0)  # 回合制
+			p = turn.pop(0)  # 回合制,p为当前棋手
 			turn.append(p)
 			player_in_turn = players[p]  # 此回合的下子方
-			move = player_in_turn.get_action()
-			self.board.update(p, move)
+			position, move = player_in_turn.get_action()
+			self.board.update(p, position, move)
 			self.graphic(self.board, human, ai)
 			end, winner = self.game_end(ai)
 			if end:
