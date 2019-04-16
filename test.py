@@ -7,7 +7,6 @@
 
 """
 4_15
-3.写获胜条件
 4.按步骤输出运行时间
 """
 
@@ -15,7 +14,7 @@
 # value, pos, move= max((move, -position-move*2, position) for (position, move) in a)
 # print(value, pos, move)
 import numpy as np
-a=[1,2,3,1,1,1,1,0,0]
-arr=np.array(a)
-p=np.where(arr==0)
-print(p)
+player=[0,1]
+p1, p2 = player
+
+print(p1, p2)

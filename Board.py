@@ -1,5 +1,5 @@
 # specific game information
-
+import numpy as np
 
 class Board(object):
 
@@ -7,7 +7,7 @@ class Board(object):
 		self.width = width
 		self.height = height
 		self.states = {}  # 记录当前棋盘的状态，键是位置，值是棋子，这里用玩家来表示棋子类型
-		self.availables = set()
+		self.acquirability = set()
 
 	def init_board(self):
 		## 初始化棋盘
@@ -44,7 +44,7 @@ class Board(object):
 		else:
 			enemy=1 # 对方为黑棋
 
-		availables = set()
+		acquirability = set()
 		for m in list(range(self.width * self.height)):
 			h = m // self.width
 			w = m % self.width
@@ -57,10 +57,10 @@ class Board(object):
 						t = t + 1
 				if w - t > 0 and self.states[m - t] != player:  # 判断所下子在棋盘内且目标位置没有己方棋子
 					if enemy not in self.states[m-t:1:m]:  # 判断路径上没有敌棋
-						availables.add((m, m - t))
+						acquirability.add((m, m - t))
 				if w + t < self.width and self.states[m + t] != player:
 					if enemy not in self.states[m:1:m+t]:
-						availables.add((m, m + t))
+						acquirability.add((m, m + t))
 
 				# 判断纵向走法
 				t = 0
@@ -69,10 +69,10 @@ class Board(object):
 						t = t + 1
 				if h - t > 0 and self.states[m - t * self.width] != player:
 					if enemy not in self.states[m - t * self.width:self.width:m]:
-						availables.add((m, m - t * self.width))
+						acquirability.add((m, m - t * self.width))
 				if h + t < self.height and self.states[m + t * self.width] != player:
 					if enemy not in self.states[m:self.width:m + t * self.width]:
-						availables.add((m, m + t * self.width))
+						acquirability.add((m, m + t * self.width))
 
 				# 判断正斜向走法
 				t = 0
@@ -88,11 +88,11 @@ class Board(object):
 						t = t + 1
 				if m - t * (self.width + 1) > 0 and self.states[m - t * (self.width + 1)] != player:
 					if enemy not in self.states[m - t * (self.width + 1):self.width+1:m]:
-						availables.add((m, m - t * (self.width + 1)))
+						acquirability.add((m, m - t * (self.width + 1)))
 				if m + t * (self.width + 1) < self.height * self.width and self.states[
 					m + t * (self.width + 1)] != player:
 					if enemy not in self.states[m:self.width + 1:m + t * (self.width + 1)]:
-						availables.add((m, m + t * (self.width + 1)))
+						acquirability.add((m, m + t * (self.width + 1)))
 
 				# 判断副斜向走法
 				t = 0
@@ -108,15 +108,80 @@ class Board(object):
 						t = t + 1
 				if m - t * (self.width - 1) > 0 and self.states[m - t * (self.width - 1)] != player:
 					if enemy not in self.states[m - t * (self.width - 1):self.width - 1:m]:
-						availables.add((m, m - t * (self.width - 1)))
+						acquirability.add((m, m - t * (self.width - 1)))
 				if m + t * (self.width - 1) < self.height * self.width and self.states[
 					m + t * (self.width - 1)] != player:
 					if enemy not in self.states[m:self.width - 1:m + t * (self.width - 1)]:
-						availables.add((m, m + t * (self.width - 1)))
+						acquirability.add((m, m + t * (self.width - 1)))
 
-		return availables
+		return acquirability
 
 	def update(self, player, position, move):  # player在move处落子，更新棋盘
 		self.states[move] = player
 		self.states[position] = -1  # 原位置为空
-# self.availables = self.get_available(player)  # 更新可下的步 ？？
+
+	def has_a_winner(self):
+		"""
+		检查是否有玩家获胜
+		"""
+		width = self.width
+		height = self.height
+		states = np.array(self.states)
+		black = 1
+		white = 0
+		all_black_chess = np.where(states == black)
+		all_white_chess = np.where(states == white)
+
+		# 判断单个棋子的获胜情况
+		if len(all_black_chess[0] == 1):
+			return True, black
+		if len(all_white_chess == 1):
+			return True, white
+
+		# 判断联通情况
+		# 黑棋
+		visited = [0 for i in range(len(self.states))]
+		connection = {all_black_chess[0][0]}
+		flag = 1  # flag为0表示存在多个连通区域, 1为只有一个连通区域
+		while len(connection):
+			m = connection.pop()
+			visited[m] = 1
+			h_m = m // width
+			w_m = m % width
+			for n in all_black_chess[0]:
+				h_n = n // width
+				w_n = n % width
+				if abs(h_m - h_n) <= 1 and abs(w_m - w_n) <= 1 and visited[n] == 0:
+					connection.add(n)
+			connection.remove(m)
+		for m in all_black_chess[0]:
+			if visited[m] == 0:
+				flag = 0
+				break
+		if flag == 1:
+			return True, black
+
+		# 白棋
+		visited = [0 for i in range(len(self.states))]
+		connection = {all_white_chess[0][0]}
+		flag = 1  # flag为0表示存在多个连通区域, 1为只有一个连通区域
+		while len(connection):
+			m = connection.pop()
+			visited[m] = 1
+			h_m = m // width
+			w_m = m % width
+			for n in all_white_chess[0]:
+				h_n = n // width
+				w_n = n % width
+				if abs(h_m - h_n) <= 1 and abs(w_m - w_n) <= 1 and visited[n] == 0:
+					connection.add(n)
+			connection.remove(m)
+		for m in all_white_chess[0]:
+			if visited[m] == 0:
+				flag = 0
+				break
+		if flag == 1:
+			return True, white
+
+		# 若均没有人获胜则返回-1
+		return False, -1
