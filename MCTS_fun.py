@@ -26,8 +26,6 @@ class MCTS(object):
 		"""
 			修改可选的下一步根据现有己方棋子来枚举
 		"""
-		# if len(self.board.availables) == 1:
-		# 	return self.board.availables.pop()  # 棋盘只剩最后一个落子位置，直接返回???????
 
 		# 每次计算下一步时都要清空plays和wins表，因为经过AI和玩家的2步棋之后，整个棋盘的局面发生了变化，原来的记录已经不适用了——原先普通的一步现在可能是致胜的一步，如果不清空，会影响现在的结果，导致这一步可能没那么“致胜”了
 		self.plays = {}
@@ -121,7 +119,7 @@ class MCTS(object):
 		return p
 
 	def select_one_move(self):
-		percent_wins, position, move = max(  #????????????
+		percent_wins, position, move = max(  # 只比较第一个值的大小
 			(self.wins.get((self.player, position, move), 0) /
 			 self.plays.get((self.player, position, move), 1),
 			 position, move)
@@ -133,34 +131,6 @@ class MCTS(object):
 		"""
 		检查是否有玩家获胜
 		"""
-		moved = list(set(range(board.width * board.height)) - set(board.availables))  # 已下的棋子
-		if (len(moved) < self.n_in_row + 2):
-			return False, -1
-
-		width = board.width
-		height = board.height
-		states = board.states
-		n = self.n_in_row
-		for m in moved:
-			h = m // width
-			w = m % width
-			player = states[m]
-
-			if (w in range(width - n + 1) and
-					len(set(states[i] for i in range(m, m + n))) == 1):  # 横向连成一线
-				return True, player
-
-			if (h in range(height - n + 1) and
-					len(set(states[i] for i in range(m, m + n * width, width))) == 1):  # 竖向连成一线
-				return True, player
-
-			if (w in range(width - n + 1) and h in range(height - n + 1) and
-					len(set(states[i] for i in range(m, m + n * (width + 1), width + 1))) == 1):  # 右斜向上连成一线
-				return True, player
-
-			if (w in range(n - 1, width) and h in range(height - n + 1) and
-					len(set(states[i] for i in range(m, m + n * (width - 1), width - 1))) == 1):  # 左斜向下连成一线
-				return True, player
 
 		return False, -1
 

@@ -1,4 +1,4 @@
-# specific game
+# specific game information
 
 
 class Board(object):
@@ -12,9 +12,12 @@ class Board(object):
 	def init_board(self):
 		## 初始化棋盘
 		for m in list(range(self.width * self.height)):
-			if m // self.width == 0 and m % self.width != 0 and m % self.width != self.width - 1:
+			h = m // self.width
+			w = m % self.width
+			if (h == 0 and w != 0 and w != self.width - 1) or (h == self.height - 1 and w != 0 and w != self.width - 1):
 				self.states[m] = 0  # 0表示当前位置为白棋,O
-			elif m // self.width == self.width - 1 and m % self.width != 0 and m % self.width != self.width - 1:
+			elif (w == 0 and h != 0 and h != self.width - 1) or (
+					w == self.height - 1 and h != 0 and h != self.width - 1):
 				self.states[m] = 1  # 1表示当前位置为黑棋,X
 			else:
 				self.states[m] = -1  # -1表示当前位置为空
@@ -36,6 +39,11 @@ class Board(object):
 		return move
 
 	def get_available(self, player):
+		if player==1: # 黑棋方正在下棋
+			enemy=0 # 对方为黑棋
+		else:
+			enemy=1 # 对方为黑棋
+
 		availables = set()
 		for m in list(range(self.width * self.height)):
 			h = m // self.width
@@ -47,10 +55,12 @@ class Board(object):
 				for n in range(self.width):  # 计算此line上有几颗棋子
 					if self.states[h * self.width + n] != -1:
 						t = t + 1
-				if w - t > 0 and self.states[m - t] != player:
-					availables.add((m, m - t))
+				if w - t > 0 and self.states[m - t] != player:  # 判断所下子在棋盘内且目标位置没有己方棋子
+					if enemy not in self.states[m-t:1:m]:  # 判断路径上没有敌棋
+						availables.add((m, m - t))
 				if w + t < self.width and self.states[m + t] != player:
-					availables.add((m, m + t))
+					if enemy not in self.states[m:1:m+t]:
+						availables.add((m, m + t))
 
 				# 判断纵向走法
 				t = 0
@@ -58,9 +68,11 @@ class Board(object):
 					if self.states[n * self.width + w] != -1:
 						t = t + 1
 				if h - t > 0 and self.states[m - t * self.width] != player:
-					availables.add((m, m - t * self.width))
+					if enemy not in self.states[m - t * self.width:self.width:m]:
+						availables.add((m, m - t * self.width))
 				if h + t < self.height and self.states[m + t * self.width] != player:
-					availables.add((m, m + t * self.width))
+					if enemy not in self.states[m:self.width:m + t * self.width]:
+						availables.add((m, m + t * self.width))
 
 				# 判断正斜向走法
 				t = 0
@@ -75,10 +87,12 @@ class Board(object):
 					if self.states[(n + h_least) * self.width + w_least + n] != -1:
 						t = t + 1
 				if m - t * (self.width + 1) > 0 and self.states[m - t * (self.width + 1)] != player:
-					availables.add((m, m - t * (self.width + 1)))
+					if enemy not in self.states[m - t * (self.width + 1):self.width+1:m]:
+						availables.add((m, m - t * (self.width + 1)))
 				if m + t * (self.width + 1) < self.height * self.width and self.states[
 					m + t * (self.width + 1)] != player:
-					availables.add((m, m + t * (self.width + 1)))
+					if enemy not in self.states[m:self.width + 1:m + t * (self.width + 1)]:
+						availables.add((m, m + t * (self.width + 1)))
 
 				# 判断副斜向走法
 				t = 0
@@ -93,10 +107,12 @@ class Board(object):
 					if self.states[(n + h_least) * self.width + w_least - n] != -1:
 						t = t + 1
 				if m - t * (self.width - 1) > 0 and self.states[m - t * (self.width - 1)] != player:
-					availables.add((m, m - t * (self.width - 1)))
+					if enemy not in self.states[m - t * (self.width - 1):self.width - 1:m]:
+						availables.add((m, m - t * (self.width - 1)))
 				if m + t * (self.width - 1) < self.height * self.width and self.states[
 					m + t * (self.width - 1)] != player:
-					availables.add((m, m + t * (self.width - 1)))
+					if enemy not in self.states[m:self.width - 1:m + t * (self.width - 1)]:
+						availables.add((m, m + t * (self.width - 1)))
 
 		return availables
 
