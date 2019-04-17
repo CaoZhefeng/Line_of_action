@@ -69,28 +69,28 @@ class MCTNode(object):
 		position, move = random.choice(list(possible_moves))
 		return position, move
 
-	def print_graphic(self, board):
-		"""
-		在终端绘制棋盘，显示棋局的状态
-		"""
-		width = board.width
-		height = board.height
-		print()
-		print("Player: ", board.player)
-		for x in range(width):
-			print("{0:8}".format(x), end='')
-		print('\r\n')
-		for i in range(height - 1, -1, -1):
-			print("{0:4d}".format(i), end='')
-			for j in range(width):
-				loc = i * width + j
-				if board.states[loc] == 1:  # 黑棋
-					print('X'.center(8), end='')
-				elif board.states[loc] == 0:  # 白棋
-					print('O'.center(8), end='')
-				else:
-					print('_'.center(8), end='')
-			print('\r\n\r\n')
+	# def print_graphic(self, board):
+	# 	"""
+	# 	在终端绘制棋盘，显示棋局的状态
+	# 	"""
+	# 	width = board.width
+	# 	height = board.height
+	# 	print()
+	# 	print("Player: ", board.player)
+	# 	for x in range(width):
+	# 		print("{0:8}".format(x), end='')
+	# 	print('\r\n')
+	# 	for i in range(height - 1, -1, -1):
+	# 		print("{0:4d}".format(i), end='')
+	# 		for j in range(width):
+	# 			loc = i * width + j
+	# 			if board.states[loc] == 1:  # 黑棋
+	# 				print('X'.center(8), end='')
+	# 			elif board.states[loc] == 0:  # 白棋
+	# 				print('O'.center(8), end='')
+	# 			else:
+	# 				print('_'.center(8), end='')
+	# 		print('\r\n\r\n')
 
 
 class MCTS(object):

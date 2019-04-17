@@ -8,7 +8,7 @@ class Board(object):
 	def __init__(self, player_turn, width=8, height=8):
 		self.width = width
 		self.height = height
-		self.states = [-1 for _ in range(width*height)]  # 记录当前棋盘的状态，索引是位置，值是棋子类型
+		self.states = [-1 for _ in range(width * height)]  # 记录当前棋盘的状态，索引是位置，值是棋子类型
 		self.player = player_turn[0]
 		self.player_turn = player_turn
 		self.acquirability = set()
@@ -45,7 +45,7 @@ class Board(object):
 		return move
 
 	def get_available(self, player):
-		enemy = 1-player
+		enemy = 1 - player
 		acquirability = set()
 
 		for m in range(self.width * self.height):
@@ -125,8 +125,8 @@ class Board(object):
 		new_board.states[position] = -1  # 原位置为空
 
 		# 更换下子方
-		new_board.player = new_board.player_turn.pop(0)
-		new_board.player_turn.append(new_board.player)
+		new_board.player = new_board.player_turn[1]
+		new_board.player_turn = [new_board.player, 1 - new_board.player]
 
 		# 更新可行集
 		new_board.acquirability = new_board.get_available(new_board.player)
@@ -200,4 +200,3 @@ class Board(object):
 			return True, 0
 		else:
 			return False, -1  # no one win
-
