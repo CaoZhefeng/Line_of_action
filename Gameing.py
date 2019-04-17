@@ -38,7 +38,8 @@ class Game(object):
 
 			else:
 				player_in_turn = Human(self.board)
-				self.print_avail()
+				# # 打印可行步
+				# self.print_avail()
 				# 得到当前可下的步骤
 				position, move = player_in_turn.get_action()
 				self.board = self.board.update(position, move)  # 更新棋盘
