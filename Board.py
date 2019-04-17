@@ -1,12 +1,16 @@
 # specific game information
 import numpy as np
+import copy
+
 
 class Board(object):
 
-	def __init__(self, width=8, height=8):
+	def __init__(self, player_turn, width=8, height=8):
 		self.width = width
 		self.height = height
 		self.states = {}  # 记录当前棋盘的状态，键是位置，值是棋子，这里用玩家来表示棋子类型
+		self.player = player_turn[0]
+		self.player_turn = player_turn
 		self.acquirability = set()
 
 	def init_board(self):
@@ -22,6 +26,8 @@ class Board(object):
 			else:
 				self.states[m] = -1  # -1表示当前位置为空
 
+		self.acquirability = self.get_available(self.player)
+
 	# 返回所下棋子的位置
 	def move_to_location(self, move):
 		h = move // self.width
@@ -29,20 +35,18 @@ class Board(object):
 		return [h, w]
 
 	def location_to_move(self, location):
-		if (len(location) != 2):
+		if len(location) != 2:
 			return -1
 		h = location[0]
 		w = location[1]
 		move = h * self.width + w
-		if (move not in range(self.width * self.height)):
+		if move not in range(self.width * self.height):
 			return -1
 		return move
 
 	def get_available(self, player):
-		if player==1: # 黑棋方正在下棋
-			enemy=0 # 对方为黑棋
-		else:
-			enemy=1 # 对方为黑棋
+
+		enemy = player-1
 
 		acquirability = set()
 		for m in list(range(self.width * self.height)):
@@ -56,10 +60,10 @@ class Board(object):
 					if self.states[h * self.width + n] != -1:
 						t = t + 1
 				if w - t > 0 and self.states[m - t] != player:  # 判断所下子在棋盘内且目标位置没有己方棋子
-					if enemy not in self.states[m-t:1:m]:  # 判断路径上没有敌棋
+					if enemy not in self.states[m - t:1:m]:  # 判断路径上没有敌棋
 						acquirability.add((m, m - t))
 				if w + t < self.width and self.states[m + t] != player:
-					if enemy not in self.states[m:1:m+t]:
+					if enemy not in self.states[m:1:m + t]:
 						acquirability.add((m, m + t))
 
 				# 判断纵向走法
@@ -87,7 +91,7 @@ class Board(object):
 					if self.states[(n + h_least) * self.width + w_least + n] != -1:
 						t = t + 1
 				if m - t * (self.width + 1) > 0 and self.states[m - t * (self.width + 1)] != player:
-					if enemy not in self.states[m - t * (self.width + 1):self.width+1:m]:
+					if enemy not in self.states[m - t * (self.width + 1):self.width + 1:m]:
 						acquirability.add((m, m - t * (self.width + 1)))
 				if m + t * (self.width + 1) < self.height * self.width and self.states[
 					m + t * (self.width + 1)] != player:
@@ -116,9 +120,19 @@ class Board(object):
 
 		return acquirability
 
-	def update(self, player, position, move):  # player在move处落子，更新棋盘
-		self.states[move] = player
-		self.states[position] = -1  # 原位置为空
+	def update(self, position, move):  # player在move处落子，更新棋盘
+		new_board = copy.deepcopy(self)
+		new_board.states[move] = self.player
+		new_board.states[position] = -1  # 原位置为空
+
+		# 更换下子方
+		new_board.player = new_board.player_turn.pop(0)
+		new_board.player_turn.append(new_board.player)
+
+		# 更新可行集
+		new_board.acquirability = new_board.get_available(new_board.player)
+
+		return new_board
 
 	def has_a_winner(self):
 		"""
@@ -142,7 +156,7 @@ class Board(object):
 		# 黑棋
 		visited = [0 for i in range(len(self.states))]
 		connection = {all_black_chess[0][0]}
-		flag = 1  # flag为0表示存在多个连通区域, 1为只有一个连通区域
+		flag_black = 1  # flag为0表示存在多个连通区域, 1为只有一个连通区域
 		while len(connection):
 			m = connection.pop()
 			visited[m] = 1
@@ -156,15 +170,13 @@ class Board(object):
 			connection.remove(m)
 		for m in all_black_chess[0]:
 			if visited[m] == 0:
-				flag = 0
+				flag_black = 0
 				break
-		if flag == 1:
-			return True, black
 
 		# 白棋
 		visited = [0 for i in range(len(self.states))]
 		connection = {all_white_chess[0][0]}
-		flag = 1  # flag为0表示存在多个连通区域, 1为只有一个连通区域
+		flag_white = 1  # flag为0表示存在多个连通区域, 1为只有一个连通区域
 		while len(connection):
 			m = connection.pop()
 			visited[m] = 1
@@ -178,10 +190,15 @@ class Board(object):
 			connection.remove(m)
 		for m in all_white_chess[0]:
 			if visited[m] == 0:
-				flag = 0
+				flag_white = 0
 				break
-		if flag == 1:
-			return True, white
 
-		# 若均没有人获胜则返回-1
-		return False, -1
+		if flag_white == 1 and flag_black == 1:  # tie
+			return True, -1
+		elif flag_black == 1:  # black win
+			return True, 1
+		elif flag_white == 1:  # white win
+			return True, 0
+		else:
+			return False, -1  # no one win
+

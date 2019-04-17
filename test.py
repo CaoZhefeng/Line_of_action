@@ -14,7 +14,11 @@
 # value, pos, move= max((move, -position-move*2, position) for (position, move) in a)
 # print(value, pos, move)
 import numpy as np
-player=[0,1]
-p1, p2 = player
+import random
 
-print(p1, p2)
+def fun():
+	return True, 0
+
+pos=fun()[0]
+
+print(type(pos))

@@ -7,6 +7,7 @@ class Game(object):
 	"""
 	game server
 	"""
+
 	def __init__(self, board, **kwargs):
 		self.board = board
 		self.player = [0, 1]  # 0为白棋方/ 1为黑棋方
@@ -15,10 +16,10 @@ class Game(object):
 
 	def start(self):
 		p1, p2 = self.init_player()  # 随机给出下子顺序, p1为AI，p2为Human
-		self.board.init_board()
+		self.board.init_board([1, 0])  # 黑方先下
 
-		ai = MCTS(self.board, [p1, p2], self.time, self.max_actions)
-		human = Human(self.board, p2)
+		ai = MCTS(self.board)
+		human = Human(self.board)
 		players = {}
 		players[p1] = ai
 		players[p2] = human
@@ -29,16 +30,23 @@ class Game(object):
 			turn.append(p)
 			player_in_turn = players[p]  # 此回合的下子方，数据类型为类
 
+			# 棋手同步棋盘
+			if p == p1:
+				player_in_turn.root.state = self.board
+			else:
+				player_in_turn.state = self.board
+
 			# 得到当前可下的步骤
-			self.board.acquirability=self.board.get_available(p)
 			position, move = player_in_turn.get_action()
-			self.board.update(p, position, move)  # 更新棋盘
+			self.board = self.board.update(position, move)  # 更新棋盘
 			self.graphic(self.board, p1, p2)
 
-			end, winner = self.board.has_a_winner()
-			if end:
+			end_or_not, winner = self.board.has_a_winner()
+			if end_or_not:
 				if winner != -1:
 					print("Game end. Winner is", players[winner])
+				else:
+					print("Tie")
 				break
 
 	def init_player(self):  # 玩家和电脑随机确定下棋方
@@ -49,14 +57,13 @@ class Game(object):
 
 		return self.player[index1], self.player[index2]
 
-
 	def graphic(self, board, AI_player, Human_player):
 		"""
 		在终端绘制棋盘，显示棋局的状态
 		"""
 		width = board.width
 		height = board.height
-		Relationship={0:"white with O", 1:"Black with X"}
+		Relationship = {0: "white with O", 1: "Black with X"}
 
 		print("Human Player", Relationship[Human_player])
 		print("AI    Player", Relationship[AI_player])
