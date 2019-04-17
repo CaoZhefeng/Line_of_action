@@ -1,5 +1,6 @@
 from Human import Human
-from MCTS_fun import MCTS
+from MCTS_fun import MCTS, MCTNode
+from Board import Board
 from random import choice
 
 
@@ -8,43 +9,47 @@ class Game(object):
 	game server
 	"""
 
-	def __init__(self, board, **kwargs):
-		self.board = board
+	def __init__(self, **kwargs):
+		self.board = Board([1, 0])  # 黑方先下
+		self.board.init_board()  # 初始化棋盘
 		self.player = [0, 1]  # 0为白棋方/ 1为黑棋方
-		self.time = float(kwargs.get('time', 5))  # 默认每步计算时长为5s
-		self.max_actions = int(kwargs.get('max_actions', 1000))  # 默认每次模拟对局最多进行的步数为1000
+
+	# self.time = float(kwargs.get('time', 5))  # 默认每步计算时长为5s
+	# self.max_actions = int(kwargs.get('max_actions', 1000))  # 默认每次模拟对局最多进行的步数为1000
 
 	def start(self):
 		p1, p2 = self.init_player()  # 随机给出下子顺序, p1为AI，p2为Human
-		self.board.init_board([1, 0])  # 黑方先下
+		Relationship = {p1: "AI", p2: "Human"}
 
-		ai = MCTS(self.board)
-		human = Human(self.board)
-		players = {}
-		players[p1] = ai
-		players[p2] = human
 		turn = [1, 0]  # 黑棋先走
+		self.graphic(self.board, p1, p2)
 
-		while (1):
+		while True:
 			p = turn.pop(0)  # 回合制,p为当前的棋的颜色
 			turn.append(p)
-			player_in_turn = players[p]  # 此回合的下子方，数据类型为类
 
-			# 棋手同步棋盘
+			# 棋手同步棋盘, 此回合的下子方，数据类型为类
 			if p == p1:
-				player_in_turn.root.state = self.board
-			else:
-				player_in_turn.state = self.board
+				root = MCTNode(self.board)
+				player_in_turn = MCTS(root)
+				# 得到当前可下的步骤
+				child_node = player_in_turn.get_action()
+				self.board = child_node.state
 
-			# 得到当前可下的步骤
-			position, move = player_in_turn.get_action()
-			self.board = self.board.update(position, move)  # 更新棋盘
+			else:
+				player_in_turn = Human(self.board)
+				print("Available Step")
+				print(self.board.acquirability)
+				# 得到当前可下的步骤
+				position, move = player_in_turn.get_action()
+				self.board = self.board.update(position, move)  # 更新棋盘
+
 			self.graphic(self.board, p1, p2)
 
 			end_or_not, winner = self.board.has_a_winner()
 			if end_or_not:
 				if winner != -1:
-					print("Game end. Winner is", players[winner])
+					print("Game end. Winner is", Relationship[winner])
 				else:
 					print("Tie")
 				break
@@ -82,3 +87,8 @@ class Game(object):
 				else:
 					print('_'.center(8), end='')
 			print('\r\n\r\n')
+
+
+if __name__ == "__main__":
+	game1 = Game()
+	game1.start()
