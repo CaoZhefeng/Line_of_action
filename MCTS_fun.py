@@ -16,6 +16,8 @@ class MCTNode(object):
 	def best_child(self, c_param=1.4):
 		children_value = [(c._wins_num / c._visit_num) + c_param * np.sqrt(2 * np.log(self._visit_num) / c._visit_num)
 						  for c in self.children]
+		# 调试
+		# print("value :", max(children_value))
 		return self.children[children_value.index(max(children_value))]
 
 	# 对未完全展开的非叶节点进行展开
@@ -68,28 +70,28 @@ class MCTNode(object):
 		position, move = random.choice(list(possible_moves))
 		return position, move
 
-	# def print_graphic(self, board):
-	# 	"""
-	# 	在终端绘制棋盘，显示棋局的状态
-	# 	"""
-	# 	width = board.width
-	# 	height = board.height
-	# 	print()
-	# 	print("Player: ", board.player)
-	# 	for x in range(width):
-	# 		print("{0:8}".format(x), end='')
-	# 	print('\r\n')
-	# 	for i in range(height - 1, -1, -1):
-	# 		print("{0:4d}".format(i), end='')
-	# 		for j in range(width):
-	# 			loc = i * width + j
-	# 			if board.states[loc] == 1:  # 黑棋
-	# 				print('X'.center(8), end='')
-	# 			elif board.states[loc] == 0:  # 白棋
-	# 				print('O'.center(8), end='')
-	# 			else:
-	# 				print('_'.center(8), end='')
-	# 		print('\r\n\r\n')
+# def print_graphic(self, board):
+# 	"""
+# 	在终端绘制棋盘，显示棋局的状态
+# 	"""
+# 	width = board.width
+# 	height = board.height
+# 	print()
+# 	print("Player: ", board.player)
+# 	for x in range(width):
+# 		print("{0:8}".format(x), end='')
+# 	print('\r\n')
+# 	for i in range(height - 1, -1, -1):
+# 		print("{0:4d}".format(i), end='')
+# 		for j in range(width):
+# 			loc = i * width + j
+# 			if board.states[loc] == 1:  # 黑棋
+# 				print('X'.center(8), end='')
+# 			elif board.states[loc] == 0:  # 白棋
+# 				print('O'.center(8), end='')
+# 			else:
+# 				print('_'.center(8), end='')
+# 		print('\r\n\r\n')
 
 
 class MCTS(object):
@@ -99,7 +101,7 @@ class MCTS(object):
 	# 仿真后选出最佳行动
 
 	def get_action(self):
-		simulations_num = 500
+		simulations_num = 100
 		for i in range(simulations_num):
 			v = self.tree_policy()
 			reward = v.rollout(self.root.state.player)
