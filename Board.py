@@ -59,7 +59,7 @@ class Board(object):
 					if self.states[h * self.width + n] != -1:
 						t = t + 1
 				if w - t >= 0 and self.states[m - t] != player:  # 判断所下子在棋盘内且目标位置没有己方棋子
-					if enemy not in self.states[m - t:m:1]:  # 判断路径上没有敌棋
+					if enemy not in self.states[m - (t-1):m:1]:  # 判断路径上没有敌棋
 						acquirability.add((m, m - t))
 				if w + t < self.width and self.states[m + t] != player:
 					if enemy not in self.states[m:m + t:1]:
@@ -71,7 +71,7 @@ class Board(object):
 					if self.states[n * self.width + w] != -1:
 						t = t + 1
 				if h - t >= 0 and self.states[m - t * self.width] != player:
-					if enemy not in self.states[m - t * self.width:m:self.width]:
+					if enemy not in self.states[m - (t-1) * self.width:m:self.width]:
 						acquirability.add((m, m - t * self.width))
 				if h + t < self.height and self.states[m + t * self.width] != player:
 					if enemy not in self.states[m:m + t * self.width:self.width]:
@@ -90,9 +90,9 @@ class Board(object):
 					if self.states[(n + h_least) * self.width + w_least + n] != -1:
 						t = t + 1
 				if h - t >= 0 and w - t >= 0 and self.states[m - t * (self.width + 1)] != player:
-					if enemy not in self.states[m - t * (self.width + 1):m:self.width + 1]:
+					if enemy not in self.states[m - (t-1) * (self.width + 1):m:self.width + 1]:
 						acquirability.add((m, m - t * (self.width + 1)))
-				if h + t < self.height * self.width and w + t < self.height * self.width and self.states[
+				if h + t < self.height and w + t < self.width and self.states[
 					m + t * (self.width + 1)] != player:
 					if enemy not in self.states[m:m + t * (self.width + 1):self.width + 1]:
 						acquirability.add((m, m + t * (self.width + 1)))
@@ -104,15 +104,15 @@ class Board(object):
 					h_least = 0
 				else:
 					w_least = self.width - 1
-					h_least = h + w + 1 - self.width
+					h_least = h + w - w_least
 
-				for n in range(min(self.height - h_least, w_least)):
+				for n in range(min(self.height - h_least, w_least+1)):
 					if self.states[(n + h_least) * self.width + w_least - n] != -1:
 						t = t + 1
-				if h - t >= 0 and w + t < self.height * self.width and self.states[m - t * (self.width - 1)] != player:
-					if enemy not in self.states[m - t * (self.width - 1):m:self.width - 1]:
+				if h - t >= 0 and w + t < self.width and self.states[m - t * (self.width - 1)] != player:
+					if enemy not in self.states[m - (t-1) * (self.width - 1):m:self.width - 1]:
 						acquirability.add((m, m - t * (self.width - 1)))
-				if w - t >= 0 and h + t < self.height * self.width and self.states[
+				if w - t >= 0 and h + t < self.height and self.states[
 					m + t * (self.width - 1)] != player:
 					if enemy not in self.states[m:m + t * (self.width - 1):self.width - 1]:
 						acquirability.add((m, m + t * (self.width - 1)))

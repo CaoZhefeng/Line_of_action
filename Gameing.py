@@ -2,6 +2,7 @@ from Human import Human
 from MCTS_fun import MCTS, MCTNode
 from Board import Board
 from random import choice
+import time
 
 
 class Game(object):
@@ -29,6 +30,7 @@ class Game(object):
 			turn.append(p)
 
 			# 棋手同步棋盘, 此回合的下子方，数据类型为类
+			start_time = time.time()
 			if p == p1:
 				root = MCTNode(self.board)
 				player_in_turn = MCTS(root)
@@ -39,10 +41,13 @@ class Game(object):
 			else:
 				player_in_turn = Human(self.board)
 				# # 打印可行步
-				self.print_avail()
+				# self.print_avail()
 				# 得到当前可下的步骤
 				position, move = player_in_turn.get_action()
 				self.board = self.board.update(position, move)  # 更新棋盘
+
+			end_time = time.time()
+			print("The cost time of this step:", end_time - start_time, "s")
 
 			self.graphic(self.board, p1, p2)
 
@@ -72,7 +77,9 @@ class Game(object):
 
 		print("Human Player", Relationship[Human_player])
 		print("AI    Player", Relationship[AI_player])
+		print("Now the player is", Relationship[board.player])
 		print()
+
 		for x in range(width):
 			print("{0:8}".format(x), end='')
 		print('\r\n')
@@ -88,9 +95,11 @@ class Game(object):
 					print('_'.center(8), end='')
 			print('\r\n\r\n')
 
+		print("##########################################################\n")
+
 	def print_avail(self):
 		print("Available Step")
-		s=list(self.board.acquirability)
+		s = list(self.board.acquirability)
 		for m in range(len(s)):
 			position, move = s[m]
 			h_p = position // self.board.width

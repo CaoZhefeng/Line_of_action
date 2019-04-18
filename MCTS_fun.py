@@ -1,4 +1,3 @@
-import time
 import numpy as np
 import random
 
@@ -100,7 +99,7 @@ class MCTS(object):
 	# 仿真后选出最佳行动
 
 	def get_action(self):
-		simulations_num = 100
+		simulations_num = 500
 		for i in range(simulations_num):
 			v = self.tree_policy()
 			reward = v.rollout(self.root.state.player)
