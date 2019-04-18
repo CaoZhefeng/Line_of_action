@@ -89,10 +89,10 @@ class Board(object):
 				for n in range(min(self.width - w_least, self.height - h_least)):
 					if self.states[(n + h_least) * self.width + w_least + n] != -1:
 						t = t + 1
-				if m - t * (self.width + 1) >= 0 and self.states[m - t * (self.width + 1)] != player:
+				if h - t >= 0 and w - t >= 0 and self.states[m - t * (self.width + 1)] != player:
 					if enemy not in self.states[m - t * (self.width + 1):m:self.width + 1]:
 						acquirability.add((m, m - t * (self.width + 1)))
-				if m + t * (self.width + 1) < self.height * self.width and self.states[
+				if h + t < self.height * self.width and w + t < self.height * self.width and self.states[
 					m + t * (self.width + 1)] != player:
 					if enemy not in self.states[m:m + t * (self.width + 1):self.width + 1]:
 						acquirability.add((m, m + t * (self.width + 1)))
@@ -109,10 +109,10 @@ class Board(object):
 				for n in range(min(self.height - h_least, w_least)):
 					if self.states[(n + h_least) * self.width + w_least - n] != -1:
 						t = t + 1
-				if m - t * (self.width - 1) >= 0 and self.states[m - t * (self.width - 1)] != player:
+				if h - t >= 0 and w + t < self.height * self.width and self.states[m - t * (self.width - 1)] != player:
 					if enemy not in self.states[m - t * (self.width - 1):m:self.width - 1]:
 						acquirability.add((m, m - t * (self.width - 1)))
-				if m + t * (self.width - 1) < self.height * self.width and self.states[
+				if w - t >= 0 and h + t < self.height * self.width and self.states[
 					m + t * (self.width - 1)] != player:
 					if enemy not in self.states[m:m + t * (self.width - 1):self.width - 1]:
 						acquirability.add((m, m + t * (self.width - 1)))
