@@ -29,6 +29,8 @@ class Game(object):
 			p = turn.pop(0)  # 回合制,p为当前的棋的颜色
 			turn.append(p)
 
+			self.graphic(self.board, p1, p2)  # 打印棋盘
+
 			# 棋手同步棋盘, 此回合的下子方，数据类型为类
 			start_time = time.time()
 			if p == p1:
@@ -48,8 +50,6 @@ class Game(object):
 
 			end_time = time.time()
 			print("The cost time of this step:", end_time - start_time, "s")
-
-			self.graphic(self.board, p1, p2)
 
 			end_or_not, winner = self.board.has_a_winner()
 			if end_or_not:
@@ -71,6 +71,7 @@ class Game(object):
 		"""
 		在终端绘制棋盘，显示棋局的状态
 		"""
+		print("##########################################################\n")
 		width = board.width
 		height = board.height
 		Relationship = {0: "white with O", 1: "Black with X"}
@@ -95,7 +96,6 @@ class Game(object):
 					print('_'.center(8), end='')
 			print('\r\n\r\n')
 
-		print("##########################################################\n")
 
 	def print_avail(self):
 		print("Available Step")

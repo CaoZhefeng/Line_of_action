@@ -101,13 +101,13 @@ class MCTS(object):
 	# 仿真后选出最佳行动
 
 	def get_action(self):
-		simulations_num = 100
+		simulations_num = 300
 		for i in range(simulations_num):
 			v = self.tree_policy()
 			reward = v.rollout(self.root.state.player)
 			v.backpropagate(reward)
 
-		return self.root.best_child(c_param=1.4)
+		return self.root.best_child(c_param=1.0)
 
 	# 选取叶节点（若非叶节点，进行展开）
 
