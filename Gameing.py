@@ -1,5 +1,5 @@
 from Human import Human
-from MCTS_fun import MCTS, MCTNode
+from MCTS_fun import MCTS_2, MCTNode_2
 from Board import Board
 from random import choice
 import time
@@ -23,7 +23,6 @@ class Game(object):
 		Relationship = {p1: "AI", p2: "Human"}
 
 		turn = [1, 0]  # 黑棋先走
-		self.graphic(self.board, p1, p2)
 
 		while True:
 			p = turn.pop(0)  # 回合制,p为当前的棋的颜色
@@ -34,8 +33,8 @@ class Game(object):
 			# 棋手同步棋盘, 此回合的下子方，数据类型为类
 			start_time = time.time()
 			if p == p1:
-				root = MCTNode(self.board)
-				player_in_turn = MCTS(root)
+				root = MCTNode_2(self.board)
+				player_in_turn = MCTS_2(root)
 				# 得到当前可下的步骤
 				child_node = player_in_turn.get_action()
 				self.board = child_node.state
@@ -57,6 +56,7 @@ class Game(object):
 					print("Game end. Winner is", Relationship[winner])
 				else:
 					print("Tie")
+				self.graphic(self.board, p1, p2)  # 打印棋盘
 				break
 
 	def init_player(self):  # 玩家和电脑随机确定下棋方
